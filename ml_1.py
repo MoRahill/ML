@@ -7,6 +7,7 @@ from sklearn.linear_model import LinearRegression
 import datetime
 import matplotlib.pyplot as plt
 from matplotlib import style
+import pickle
 
 style.use('ggplot')
 
@@ -41,6 +42,11 @@ y = y[:-forecast_out]
 X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=0.2) #This splits the data into a training set and a testing set. The test size is 20% of the total data.
 clf = LinearRegression(n_jobs=-1) #This creates a linear regression model.
 clf.fit(X_train, y_train) #This trains the model on the training data.
+with open('linearregression.pickle', 'wb') as f:
+    pickle.dump(clf, f) 
+
+pickle_in = open('linearregression.pickle', 'rb')
+clf = pickle.load(pickle_in) #This loads the trained model from the pickle file. Basically saves the time instead of training the whole classifier again.
 accuracy = clf.score(X_test, y_test) #This evaluates the model on the testing data and returns the coefficient of determination R^2 of the prediction.    
 
 forecast_set = clf.predict(X_lately) #This uses the trained model to make predictions on the data that we want to forecast out.
