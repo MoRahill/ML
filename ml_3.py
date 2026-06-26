@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn import preprocessing, model_selection, neighbors
 import pandas as pd
+from math import sqrt
 
 column_names = ['id','clump_thickness','uniform_cell_size','uniform_cell_shape',
                 'marginal_adhesion','single_epithelial_size','bare_nuclei',
@@ -34,3 +35,9 @@ example_measures = example_measures.reshape(len(example_measures), -1) #len(exam
 
 prediction = clf.predict(example_measures) #make prediction on example data
 print(prediction)
+
+#Euclidean distance calculation: (import sqrt from math library)
+plot1=[1,3]
+plot2=[2,5]
+euclidean_distance = sqrt((plot2[0]-plot1[0])**2 + (plot2[1]-plot1[1])**2)
+print(euclidean_distance) 
