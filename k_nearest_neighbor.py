@@ -18,36 +18,47 @@ def k_nearest_neighbors(data, predict, k=3):
     votes = [i[1] for i in sorted(distances)[:k]]
     #print(Counter(votes).most_common(1))
     vote_result = Counter(votes).most_common(1)[0][0]
+    confidence = Counter(votes).most_common(1)[0][1] / k
 
-    return vote_result
+    #print(vote_result, confidence)
 
-df = pd.read_csv('breast-cancer-wisconsin.data', names=['id','clump_thickness','uniform_cell_size','uniform_cell_shape',
+
+    return vote_result, confidence
+
+accuracies = []
+
+for i in range(25):
+    df = pd.read_csv('breast-cancer-wisconsin.data', names=['id','clump_thickness','uniform_cell_size','uniform_cell_shape',
                 'marginal_adhesion','single_epithelial_size','bare_nuclei',
                 'bland_chromatin','normal_nucleoli','mitoses','class'])
-df.replace('?', -99999, inplace=True) #replace missing data with outlier
-df.drop(['id'], axis=1, inplace=True) #drop id column as it is not useful for prediction
-full_data = df.astype(float).values.tolist() #convert dataframe to list of lists
-random.shuffle(full_data) #shuffle the data to ensure randomness
+    df.replace('?', -99999, inplace=True) #replace missing data with outlier
+    df.drop(['id'], axis=1, inplace=True) #drop id column as it is not useful for prediction
+    full_data = df.astype(float).values.tolist() #convert dataframe to list of lists
+    random.shuffle(full_data) #shuffle the data to ensure randomness
 
-test_size = 0.2
-train_set = {2:[], 4:[]} #create a dictionary to hold the training data
-test_set = {2:[], 4:[]} #create a dictionary to hold the testing data
-train_data = full_data[:-int(test_size*len(full_data))] #split the data into training and testing sets
-test_data = full_data[-int(test_size*len(full_data)):] #split the data into training and testing sets
+    test_size = 0.4
+    train_set = {2:[], 4:[]} #create a dictionary to hold the training data
+    test_set = {2:[], 4:[]} #create a dictionary to hold the testing data
+    train_data = full_data[:-int(test_size*len(full_data))] #split the data into training and testing sets
+    test_data = full_data[-int(test_size*len(full_data)):] #split the data into training and testing sets
 
-for i in train_data:
-    train_set[i[-1]].append(i[:-1]) #append the features to the corresponding class in the training set
+    for i in train_data:
+        train_set[i[-1]].append(i[:-1]) #append the features to the corresponding class in the training set
 
-for i in test_data:
-    test_set[i[-1]].append(i[:-1]) #append the features to the corresponding class in the testing set
+    for i in test_data:
+        test_set[i[-1]].append(i[:-1]) #append the features to the corresponding class in the testing set
 
-correct = 0
-total = 0
-for group in test_set:
-    for data in test_set[group]:
-        vote = k_nearest_neighbors(train_set, data, k=5) #make prediction on the test data
-        if group == vote:
-            correct += 1
-        total += 1
+    correct = 0
+    total = 0
+    for group in test_set:
+        for data in test_set[group]:
+            vote,confidence = k_nearest_neighbors(train_set, data, k=5) #make prediction on the test data
+            if group == vote:
+                correct += 1
+            total += 1
 
-print('Accuracy:', correct/total) #print the accuracy of the model
+    #print('Accuracy:', correct/total) #print the accuracy of the model
+    accuracies.append(correct/total) #append the accuracy to the list of accuracies
+
+print(sum(accuracies)/len(accuracies)) #print the average accuracy of the model
+
